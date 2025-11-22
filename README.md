@@ -10,27 +10,28 @@ Timelapse-Pi is a dual-mode outdoor camera system designed for long-duration tim
 
 - **AUTO Mode**: Ultra-low-power operation with hardware timer control (weeks of battery life)
 - **BYPASS Mode**: Full-power continuous operation for configuration and testing
-- **Future Mobile App**: React Native app for remote configuration and monitoring
+- **Web-Based UI**: Browser-accessible interface for configuration, gallery, and video rendering
 
 ### Key Features
 
-- 🔋 **Long Battery Life**: 20+ days on single 3S LiPo charge (1-hour capture interval)
+- 🔋 **Long Battery Life**: 80+ days on single 3S LiPo charge (9700 mAh, 1-hour capture interval)
 - 🌧️ **Weatherproof**: Sealed enclosure with acrylic camera window
-- 📸 **High Quality**: Raspberry Pi HQ Camera (12.3MP) with interchangeable M12 lenses
+- 📸 **High Quality**: Raspberry Pi HQ Camera (12.3MP) with 6mm wide-angle lens
 - ⚡ **Dual Power Modes**: Low-power timer-controlled vs. always-on configuration mode
 - 🔧 **Field Serviceable**: Easy battery swapping, no complex onboard charging
-- 📱 **Remote Management**: Future mobile app for configuration and image access
+- 🌐 **Web-Based Control**: FastAPI web UI for configuration, gallery, and timelapse rendering
 
 ## Hardware
 
 ### Core Components
 
 - Raspberry Pi Zero 2 W (controller)
-- Raspberry Pi HQ Camera (12.3MP, Sony IMX477)
+- Raspberry Pi HQ Camera (12.3MP, Sony IMX477, M12 mount)
+- M12 6mm wide-angle lens (Adafruit #4563)
 - SparkFun Nano Power Timer (TPL5110)
-- 3S LiPo battery + buck converter (5V @ 2A)
+- 3S LiPo battery (9700 mAh) + buck converter (5V @ 2A)
+- 1000 µF smoothing capacitor
 - DPDT switch (AUTO/BYPASS mode selection)
-- Momentary wake button
 - Weatherproof enclosure with acrylic window
 
 ### Power Architecture
@@ -52,64 +53,69 @@ Timelapse-Pi is a dual-mode outdoor camera system designed for long-duration tim
 
 ### Core Application
 
+- **OS**: Raspberry Pi OS Lite (headless)
 - **Language**: Python 3
-- **Camera**: libcamera / picamera2
-- **GPIO Control**: RPi.GPIO
+- **Framework**: FastAPI (REST API + web UI)
+- **Camera**: picamera2
+- **Sun Calculations**: astral (sunrise/sunset)
+- **Video Rendering**: ffmpeg (H.264 MP4)
 - **Service**: systemd auto-start
 
 ### Configuration
 
-JSON-based configuration for:
-- Capture interval
-- Image resolution and quality
-- Storage paths
-- API settings
+JSON-based configuration (`tl_config.json`):
+- Operating mode (AUTO/BYPASS)
+- Capture intervals (hardware/software)
+- Location (lat/lon) for sunrise/sunset
+- Daylight-only and time window settings
+- Battery capacity for runtime estimates
+- Camera parameters (ISO, exposure, AWB)
 
-### Future API (Phase 3)
+### Web UI
 
-REST API for mobile app integration:
-- System status and battery monitoring
-- Configuration management
-- Manual capture trigger
-- Image gallery access
-
-### Future Mobile App (Phase 4)
-
-React Native app (iOS + Android) for:
-- Remote configuration
-- Status monitoring
-- Image gallery
-- Manual capture control
+Browser-based interface served from the Pi:
+- **Dashboard**: Status, battery estimate, next capture time
+- **Live Preview**: Camera view with adjustable settings
+- **Timelapse Settings**: Intervals, daylight windows, location
+- **Gallery**: Browse/download images, bulk ZIP export
+- **Rendering**: Generate timelapse videos from image sequences
+- **Network**: Wi-Fi AP/client mode switching, OTA updates
 
 ## Project Status
 
-**Current Phase**: Phase 1 - Hardware Assembly
+**Current Phase**: Phase 2 - Software Development
 
-### Completed
-- ✅ Enclosure preparation and camera mounting
-- ✅ Power system design and buck converter installation
-- ✅ Project documentation and GitHub repository
+### Hardware Complete ✅
+- ✅ Enclosure sealed and weatherproof
+- ✅ Camera mount installed and aligned to window
+- ✅ Power system wired (3S LiPo → Buck → Timer/Switch → Pi)
+- ✅ DPDT switch for AUTO/BYPASS mode selection
+- ✅ SparkFun TPL5110 timer configured
+- ✅ 1000 µF smoothing capacitor installed
+- ✅ All electrical connections tested
 
-### In Progress
-- ⏳ DPDT switch and wake button wiring
-- ⏳ TPL5110 timer configuration
+### Software Development (In Progress)
+- 🔲 Raspberry Pi OS installation and configuration
+- 🔲 FastAPI web application
+- 🔲 AUTO mode capture script (timer-controlled)
+- 🔲 BYPASS mode capture loop (software-timed)
+- 🔲 Sunrise/sunset logic and time windows
+- 🔲 Image gallery and timelapse rendering
+- 🔲 Wi-Fi AP/client mode switching
+- 🔲 OTA update mechanism
 
-### Coming Soon
-- 🔲 Raspberry Pi OS setup
-- 🔲 Timelapse capture software
-- 🔲 API development
-- 🔲 Mobile app development
-- 🔲 Field testing
+### Future
+- 🔲 Field testing and deployment
 
 ## Documentation
 
-Comprehensive project documentation maintained in Obsidian:
+Comprehensive project documentation maintained in Obsidian vault:
 
-- **Dashboard**: Project overview and quick links
-- **Current State**: Complete hardware/software configuration
-- **Build Plan**: Phased development roadmap
-- **Modification Log**: Detailed change history
-- **Reference**: Guides, specs, and backups
+- **[SPEC.md](https://github.com/jake9results/timelapse-pi/blob/main/docs/SPEC.md)**: Complete technical specification (hardware, software, API)
+- **[CHANGELOG.md](https://github.com/jake9results/timelapse-pi/blob/main/docs/CHANGELOG.md)**: Chronological modification history
+- **Shared Memory**: AI session context for development continuity
+
+See the [Obsidian vault](https://github.com/jake9results/timelapse-pi/tree/main/docs) for detailed technical documentation.
 
 ## Use Case
 
@@ -119,17 +125,17 @@ Capturing a plant growing up a trellis over weeks/months with hourly images to c
 
 ## Power Consumption
 
-### AUTO Mode (Timer-Controlled)
+### AUTO Mode (Timer-Controlled, 1-hour interval)
 - Sleep: 35 µA (timer only)
 - Active: 300 mA avg (Pi + camera during 60s capture)
 - Per cycle: ~5 mAh
 - Daily (24 cycles): ~120 mAh
-- **Battery life**: 25+ days on 3000 mAh battery
+- **Battery life**: 80+ days on 9700 mAh battery
 
 ### BYPASS Mode (Continuous)
 - Idle: 120 mA avg
 - Daily: ~2880 mAh
-- **Battery life**: ~1 day on 3000 mAh battery
+- **Battery life**: 3-4 days on 9700 mAh battery
 
 ## Contributing
 
