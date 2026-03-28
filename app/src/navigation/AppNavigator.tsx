@@ -11,10 +11,12 @@ import { BatchListScreen } from '../screens/gallery/BatchListScreen';
 import { BatchDetailScreen } from '../screens/gallery/BatchDetailScreen';
 import { ImageViewerScreen } from '../screens/gallery/ImageViewerScreen';
 import { SettingsScreen } from '../screens/settings/SettingsScreen';
+import { NetworkScreen } from '../screens/settings/NetworkScreen';
 import { colors } from '../theme';
 
 const Tab = createBottomTabNavigator();
 const GalleryStack = createNativeStackNavigator();
+const SettingsStack = createNativeStackNavigator();
 const RootStack = createNativeStackNavigator();
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
@@ -36,6 +38,15 @@ function GalleryStackScreen() {
   );
 }
 
+function SettingsStackScreen() {
+  return (
+    <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
+      <SettingsStack.Screen name="SettingsMain" component={SettingsScreen} />
+      <SettingsStack.Screen name="Network" component={NetworkScreen} />
+    </SettingsStack.Navigator>
+  );
+}
+
 function MainTabs() {
   return (
     <>
@@ -52,7 +63,7 @@ function MainTabs() {
         <Tab.Screen name="Dashboard" component={DashboardScreen} />
         <Tab.Screen name="Preview" component={PreviewScreen} />
         <Tab.Screen name="Gallery" component={GalleryStackScreen} />
-        <Tab.Screen name="Settings" component={SettingsScreen} />
+        <Tab.Screen name="Settings" component={SettingsStackScreen} />
       </Tab.Navigator>
     </>
   );
