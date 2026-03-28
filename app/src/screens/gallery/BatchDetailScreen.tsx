@@ -5,7 +5,7 @@ import { ImageThumbnail } from '../../components/ImageThumbnail';
 import { downloadBatchImages, DownloadProgress } from '../../services/storage';
 import { api } from '../../api/client';
 import { colors, spacing, typography } from '../../theme';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { RenderModal } from '../render/RenderModal';
 
 export function BatchDetailScreen({ route, navigation }: any) {
