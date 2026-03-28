@@ -77,6 +77,7 @@ class BatchManager:
                     "size_bytes": os.path.getsize(img_path),
                 }
             )
+        meta["image_count"] = len(meta["images"])
         return meta
 
     def rename_batch(self, batch_id: str, new_name: str) -> dict:
