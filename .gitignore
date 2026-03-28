@@ -52,6 +52,9 @@ backups/
 # Keep example config
 !config.example.json
 
+# Superpowers brainstorm sessions
+.superpowers/
+
 # Secrets
 *.pem
 *.key
