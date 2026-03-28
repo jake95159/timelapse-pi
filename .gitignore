@@ -53,6 +53,10 @@ backups/
 # Keep example config
 !config.example.json
 
+# Keep mock server sample images
+!app/mock-server/sample-images/
+!app/mock-server/sample-images/*.jpg
+
 # Superpowers brainstorm sessions
 .superpowers/
 
