@@ -20,10 +20,12 @@ import time
 from datetime import datetime
 
 # Configuration
-IMAGE_DIR = "/home/pi/timelapse/images"
-LOG_FILE = "/home/pi/timelapse/logs/boot_trace.log"
-SEQ_FILE = "/home/pi/timelapse/logs/sequence.txt"
-LOCK_FILE = "/tmp/timelapse-capture.lock"  # /tmp is cleared every boot
+BASE_DIR = "/home/pi/timelapse"
+IMAGES_DIR = os.path.join(BASE_DIR, "images")
+AUTO_BATCH_DIR = os.path.join(IMAGES_DIR, "auto")
+LOG_FILE = os.path.join(BASE_DIR, "logs", "boot_trace.log")
+SEQ_FILE = os.path.join(BASE_DIR, "logs", "sequence.txt")
+LOCK_FILE = "/tmp/timelapse-capture.lock"
 GPIO_DONE = 17
 
 def acquire_lock():
@@ -63,8 +65,25 @@ def log(message):
     except Exception as e:
         print(f"Log error: {e}", file=sys.stderr)
 
+def ensure_auto_batch():
+    """Create the auto batch directory and metadata if they don't exist."""
+    os.makedirs(AUTO_BATCH_DIR, exist_ok=True)
+    meta_path = os.path.join(AUTO_BATCH_DIR, "batch.json")
+    if not os.path.exists(meta_path):
+        import json
+        meta = {
+            "id": "auto",
+            "name": "Auto Captures",
+            "created": datetime.now().isoformat(),
+        }
+        with open(meta_path, "w") as f:
+            json.dump(meta, f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+
 def capture_image(seq):
     """Initialize camera, warm up, capture full-res JPEG, close camera."""
+    ensure_auto_batch()
     from picamera2 import Picamera2
 
     log(f"AUTO: Camera init (capture #{seq})")
@@ -81,7 +100,7 @@ def capture_image(seq):
 
     # Filename uses sequence number (clock-independent) + timestamp for reference
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = os.path.join(IMAGE_DIR, f"capture_{seq:05d}_{timestamp}.jpg")
+    filename = os.path.join(AUTO_BATCH_DIR, f"capture_{seq:05d}_{timestamp}.jpg")
 
     log(f"AUTO: Capturing → {filename}")
     camera.capture_file(filename)
