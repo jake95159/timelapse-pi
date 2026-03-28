@@ -1,0 +1,12 @@
+[Unit]
+Description=Timelapse WiFi Manager
+PartOf=timelapse-bypass.target
+After=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /home/pi/timelapse/systemd/wifi-startup.sh
+StandardOutput=journal
+StandardError=journal
+RemainAfterExit=yes
+TimeoutStartSec=60

@@ -1,0 +1,5 @@
+[Unit]
+Description=Timelapse BYPASS Mode
+DefaultDependencies=no
+After=local-fs.target network-online.target
+Wants=timelapse-wifi.service timelapse-api.service

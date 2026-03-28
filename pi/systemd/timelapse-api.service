@@ -1,0 +1,17 @@
+[Unit]
+Description=Timelapse FastAPI Server
+PartOf=timelapse-bypass.target
+After=timelapse-wifi.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/timelapse
+ExecStart=/home/pi/timelapse/venv/bin/uvicorn api.run:app --host 0.0.0.0 --port 8000
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+Environment=TL_CONFIG=/home/pi/timelapse/tl_config.json
+Environment=TL_IMAGES=/home/pi/timelapse/images
+Environment=TL_SEQUENCE=/home/pi/timelapse/logs/sequence.txt

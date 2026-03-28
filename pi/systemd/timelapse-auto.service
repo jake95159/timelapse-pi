@@ -1,0 +1,13 @@
+[Unit]
+Description=Timelapse AUTO Capture
+DefaultDependencies=no
+After=local-fs.target
+
+[Service]
+Type=oneshot
+User=pi
+WorkingDirectory=/home/pi/timelapse
+ExecStart=/usr/bin/python3 /home/pi/timelapse/capture_auto.py
+StandardOutput=append:/home/pi/timelapse/logs/capture.log
+StandardError=append:/home/pi/timelapse/logs/capture.log
+TimeoutStartSec=45

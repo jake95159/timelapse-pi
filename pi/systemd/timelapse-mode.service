@@ -1,0 +1,15 @@
+[Unit]
+Description=Timelapse Mode Detection (GPIO27)
+DefaultDependencies=no
+After=local-fs.target
+Before=sysinit.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /home/pi/timelapse/systemd/timelapse-mode.sh
+StandardOutput=journal
+StandardError=journal
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
