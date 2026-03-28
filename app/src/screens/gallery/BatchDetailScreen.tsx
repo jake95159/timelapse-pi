@@ -5,6 +5,8 @@ import { ImageThumbnail } from '../../components/ImageThumbnail';
 import { downloadBatchImages, DownloadProgress } from '../../services/storage';
 import { api } from '../../api/client';
 import { colors, spacing, typography } from '../../theme';
+import * as FileSystem from 'expo-file-system';
+import { RenderModal } from '../render/RenderModal';
 
 export function BatchDetailScreen({ route, navigation }: any) {
   const { batchId, batchName } = route.params;
@@ -14,6 +16,7 @@ export function BatchDetailScreen({ route, navigation }: any) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState<DownloadProgress | null>(null);
+  const [showRender, setShowRender] = useState(false);
 
   const selectionMode = selectedIds.size > 0;
 
@@ -95,6 +98,12 @@ export function BatchDetailScreen({ route, navigation }: any) {
                 : 'Download All'}
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.actionBtn, { backgroundColor: colors.warning }]}
+          onPress={() => setShowRender(true)}
+        >
+          <Text style={styles.actionText}>Render</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={[styles.actionBtn, styles.deleteBtn]} onPress={handleDelete}>
           <Text style={styles.actionText}>Delete</Text>
         </TouchableOpacity>
@@ -123,6 +132,16 @@ export function BatchDetailScreen({ route, navigation }: any) {
         )}
         contentContainerStyle={styles.grid}
       />
+      {showRender && (
+        <View style={StyleSheet.absoluteFill}>
+          <RenderModal
+            batchPath={`${FileSystem.documentDirectory}TimelapsePi/${batch.name.replace(/[^a-zA-Z0-9_\- ]/g, '').replace(/ /g, '_')}/`}
+            batchName={batch.name}
+            imageCount={batch.image_count}
+            onClose={() => setShowRender(false)}
+          />
+        </View>
+      )}
     </View>
   );
 }
