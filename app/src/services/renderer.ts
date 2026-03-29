@@ -12,13 +12,30 @@ export interface RenderProgress {
   stage: 'preparing' | 'rendering' | 'saving';
 }
 
+// Check if ffmpeg-kit is available (only in custom dev client, not Expo Go)
+let FFmpegKit: any = null;
+let FFmpegKitConfig: any = null;
+
+try {
+  const ffmpeg = require('ffmpeg-kit-react-native');
+  FFmpegKit = ffmpeg.FFmpegKit;
+  FFmpegKitConfig = ffmpeg.FFmpegKitConfig;
+} catch {
+  // Not available in Expo Go — renderTimelapse will throw a clear error
+}
+
+export function isRenderingAvailable(): boolean {
+  return FFmpegKit !== null;
+}
+
 export async function renderTimelapse(
   imagePaths: string[],
   config: RenderConfig,
   onProgress: (progress: RenderProgress) => void,
 ): Promise<string> {
-  // FFmpeg-kit is a native module — this will only work with a custom dev client
-  const { FFmpegKit, FFmpegKitConfig } = await import('ffmpeg-kit-react-native');
+  if (!FFmpegKit) {
+    throw new Error('Video rendering requires a custom dev client. Build with: npx eas build --profile development');
+  }
 
   onProgress({ percent: 0, stage: 'preparing' });
 
@@ -26,7 +43,7 @@ export async function renderTimelapse(
   const tmpDir = `${FileSystem.cacheDirectory}render_${Date.now()}/`;
   await FileSystem.makeDirectoryAsync(tmpDir, { intermediates: true });
 
-  // Symlink/copy images with sequential numbering for FFmpeg
+  // Copy images with sequential numbering for FFmpeg
   for (let i = 0; i < imagePaths.length; i++) {
     const dest = `${tmpDir}frame_${String(i + 1).padStart(5, '0')}.jpg`;
     await FileSystem.copyAsync({ from: imagePaths[i], to: dest });
