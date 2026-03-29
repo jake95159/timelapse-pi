@@ -24,7 +24,7 @@ echo "════════════════════════�
 echo ""
 echo "▸ [1/8] Installing system packages..."
 ssh "$PI_HOST" "sudo apt-get update -qq && sudo apt-get install -y -qq \
-    git ffmpeg \
+    git ffmpeg dos2unix \
     python3-pip python3-venv python3-picamera2 python3-lgpio python3-pil \
     libcamera-apps \
     network-manager avahi-daemon gpiod \
@@ -54,7 +54,10 @@ echo "▸ [3/8] Deploying application code..."
 rsync -az --delete \
     --exclude='venv/' --exclude='tests/' --exclude='__pycache__/' \
     "$PI_DIR/" "$PI_HOST:~/timelapse/"
-echo "  ✓ Code deployed"
+
+# Fix CRLF line endings (files from Windows/WSL may have \r\n)
+ssh "$PI_HOST" "find ~/timelapse -name '*.py' -o -name '*.sh' -o -name '*.conf' -o -name '*.service' -o -name '*.target' | xargs dos2unix -q 2>/dev/null"
+echo "  ✓ Code deployed (line endings fixed)"
 
 # ----------------------------------------------------------
 # 4. Set up Python venv
@@ -92,9 +95,10 @@ ssh "$PI_HOST" "
     chmod +x ~/timelapse/systemd/timelapse-mode.sh
     chmod +x ~/timelapse/systemd/wifi-startup.sh
 
-    # Enable mode detection service (it starts everything else)
+    # Install but do NOT enable boot services yet
+    # (wifi-startup.sh races with NM auto-connect — needs debugging with console access)
     sudo systemctl daemon-reload
-    sudo systemctl enable timelapse-mode.service
+    # sudo systemctl enable timelapse-mode.service  # TODO: enable after boot flow is fixed
 "
 echo "  ✓ Systemd services installed"
 
