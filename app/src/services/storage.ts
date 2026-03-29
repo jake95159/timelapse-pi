@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 import { api } from '../api/client';
 
 const BASE_DIR = `${FileSystem.documentDirectory}TimelapsePi/`;
