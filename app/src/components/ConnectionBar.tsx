@@ -1,14 +1,16 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useConnection } from '../providers/ConnectionProvider';
 import { colors, spacing } from '../theme';
 
 export function ConnectionBar() {
   const { state, piAddress, connect } = useConnection();
+  const insets = useSafeAreaInsets();
 
   if (state === 'connected') {
     return (
-      <View style={[styles.bar, styles.connected]}>
+      <View style={[styles.bar, styles.connected, { paddingTop: insets.top + spacing.xs }]}>
         <View style={styles.dot} />
         <Text style={styles.text}>Connected</Text>
         <Text style={styles.address}>{piAddress?.replace('http://', '').replace(':8000', '')}</Text>
@@ -17,7 +19,7 @@ export function ConnectionBar() {
   }
 
   return (
-    <TouchableOpacity style={[styles.bar, styles.disconnected]} onPress={() => connect()}>
+    <TouchableOpacity style={[styles.bar, styles.disconnected, { paddingTop: insets.top + spacing.xs }]} onPress={() => connect()}>
       <View style={[styles.dot, styles.dotRed]} />
       <Text style={styles.text}>
         {state === 'searching' ? 'Searching...' : 'Disconnected'}

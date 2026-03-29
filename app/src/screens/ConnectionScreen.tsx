@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useConnection } from '../providers/ConnectionProvider';
 import { colors, spacing, typography } from '../theme';
 
@@ -9,7 +10,8 @@ export function ConnectionScreen() {
   const [showManual, setShowManual] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safe}>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <Text style={styles.title}>TimelapsePi</Text>
 
       {state === 'searching' ? (
@@ -56,12 +58,14 @@ export function ConnectionScreen() {
           )}
         </>
       )}
-    </View>
+    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
+  safe: { flex: 1, backgroundColor: colors.background },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
   title: { ...typography.title, fontSize: 28, marginBottom: spacing.md },
   subtitle: { ...typography.body, color: colors.textSecondary, marginBottom: spacing.xl, textAlign: 'center' },
   button: { backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: 12, marginBottom: spacing.md },
