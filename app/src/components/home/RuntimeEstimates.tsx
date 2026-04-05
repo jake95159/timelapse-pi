@@ -19,7 +19,13 @@ export function RuntimeEstimates({
   const bypassColor = bypassStorageLimited ? colors.danger : colors.textSecondary;
   const autoColor = autoStorageLimited ? colors.danger : colors.textSecondary;
 
-  const formatHours = (h: number | null) => h != null ? `${Math.round(h)}h` : '--';
+  const formatHours = (h: number | null) => {
+    if (h == null) return '--';
+    if (h <= 72) return `${Math.round(h)}h`;
+    const days = h / 24;
+    if (days <= 7) return `${days.toFixed(1)}d`;
+    return `${Math.round(days)}d`;
+  };
   const formatFrames = (f: number | null) => {
     if (f == null) return '--';
     return f >= 1000 ? `${(f / 1000).toFixed(1)}k` : String(f);

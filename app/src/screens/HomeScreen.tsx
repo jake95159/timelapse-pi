@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { ScrollView, View, StyleSheet } from 'react-native';
+import { ScrollView, View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { useStatus } from '../hooks/useStatus';
 import { useSettings, useUpdateSettings } from '../hooks/useSettings';
@@ -86,7 +86,12 @@ export function HomeScreen() {
   const viewfinderMode = isRecording ? 'recording' : livePreview ? 'live' : 'standby';
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <StatusStrip
         storageFreeGb={storageFreeGb}
         storagePct={s.storage_used_pct}
@@ -147,6 +152,7 @@ export function HomeScreen() {
         captureDisabled={captureNow.isPending}
       />
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   container: {
     aspectRatio: 4 / 3,
     backgroundColor: '#0a0a10',
-    marginHorizontal: spacing.sm,
+    marginHorizontal: spacing.xs,
     marginVertical: spacing.sm,
     position: 'relative',
     overflow: 'hidden',
