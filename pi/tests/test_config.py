@@ -19,6 +19,15 @@ class TestConfigLoad:
         assert config["software_interval_sec"] == 30
         assert config["camera"]["iso"] == 100  # defaults filled in
 
+    def test_power_defaults(self, tmp_path):
+        svc = ConfigService(str(tmp_path / "config.json"))
+        config = svc.load()
+        assert config["power"]["volt_multiplier"] == 12.71
+        assert config["power"]["battery_mah"] == 9700
+        assert config["power"]["bypass_draw_ma"] == 180
+        assert config["power"]["auto_draw_ma"] == 180
+        assert config["power"]["auto_on_time_sec"] == 25
+
     def test_ignores_unknown_keys(self, tmp_path):
         path = tmp_path / "config.json"
         path.write_text('{"unknown_key": "value", "software_interval_sec": 5}')

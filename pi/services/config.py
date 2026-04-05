@@ -9,7 +9,6 @@ DEFAULT_CONFIG = {
     "window_end": "23:59",
     "hardware_interval_sec": 3600,
     "software_interval_sec": 60,
-    "battery_mah": 5000,
     "camera": {
         "iso": 100,
         "exposure_mode": "auto",
@@ -19,6 +18,13 @@ DEFAULT_CONFIG = {
     "ap": {
         "ssid": "TimelapsePi",
         "password": "timelapse",
+    },
+    "power": {
+        "volt_multiplier": 12.71,
+        "battery_mah": 9700,
+        "bypass_draw_ma": 180,
+        "auto_draw_ma": 180,
+        "auto_on_time_sec": 25,
     },
 }
 
