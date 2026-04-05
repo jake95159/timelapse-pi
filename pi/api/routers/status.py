@@ -15,6 +15,7 @@ _start_time = time.time()
 async def get_status(services: ServiceContainer = Depends(get_services)):
     config = services.config.load()
     mode = detect_mode()
+    power_config = config.get("power", {})
 
     # Storage
     try:
@@ -38,15 +39,28 @@ async def get_status(services: ServiceContainer = Depends(get_services)):
                 "batch_id": last_batch["id"],
             }
 
-    # Battery estimate
-    battery_mah = config.get("battery_mah", 5000)
-    if mode == "bypass":
-        runtime_hours = round(battery_mah / 180, 1)
+    # Battery
+    power_status = services.power.get_status()
+    battery_voltage = power_status["battery_voltage"]
+    battery_soc_pct = power_status["battery_soc_pct"]
+
+    # Runtime estimate
+    interval = config.get("hardware_interval_sec", 3600)
+    runtime_hours = services.power.estimate_runtime(
+        battery_soc_pct, mode, power_config, interval_sec=interval,
+    )
+
+    # Fallback: capacity-based estimate when voltage unavailable
+    if runtime_hours is None:
+        battery_mah = power_config.get("battery_mah", 9700)
+        if mode == "bypass":
+            runtime_hours = round(battery_mah / power_config.get("bypass_draw_ma", 180), 1)
+        else:
+            duty = power_config.get("auto_on_time_sec", 25) / max(interval, 1)
+            avg_ma = power_config.get("auto_draw_ma", 180) * duty + 0.035 * (1 - duty)
+            runtime_hours = round(battery_mah / max(avg_ma, 0.01), 1)
     else:
-        interval = config.get("hardware_interval_sec", 3600)
-        duty = 25 / max(interval, 1)
-        avg_ma = 180 * duty + 0.1 * (1 - duty)
-        runtime_hours = round(battery_mah / max(avg_ma, 0.01), 1)
+        runtime_hours = round(runtime_hours, 1)
 
     return {
         "mode": mode,
@@ -55,7 +69,9 @@ async def get_status(services: ServiceContainer = Depends(get_services)):
         "last_capture": last_capture,
         "storage_used_pct": storage_used_pct,
         "storage_free_mb": storage_free_mb,
-        "battery_mah": battery_mah,
+        "battery_voltage": battery_voltage,
+        "battery_soc_pct": battery_soc_pct,
+        "battery_mah": power_config.get("battery_mah", 9700),
         "runtime_estimate_hours": runtime_hours,
         "software_interval_sec": config.get("software_interval_sec"),
         "hardware_interval_sec": config.get("hardware_interval_sec"),

@@ -11,7 +11,7 @@ async def lifespan(app: FastAPI):
     try:
         services.camera.start()
     except Exception:
-        pass  # Camera unavailable (testing or AUTO mode)
+        pass
     yield
     try:
         services.capture_loop.stop()
@@ -29,6 +29,7 @@ def create_app(
     sequence_file: str,
     camera=None,
     wifi=None,
+    power=None,
 ) -> FastAPI:
     from api.routers import batches, capture, network, preview, settings, status
 
@@ -40,6 +41,7 @@ def create_app(
         sequence_file=sequence_file,
         camera=camera,
         wifi=wifi,
+        power=power,
     )
 
     app.include_router(status.router, prefix="/api")

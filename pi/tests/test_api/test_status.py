@@ -24,3 +24,29 @@ def test_status_includes_config_values(client):
     data = resp.json()
     assert data["software_interval_sec"] == 60
     assert data["hardware_interval_sec"] == 3600
+
+
+def test_status_includes_battery_voltage(client):
+    resp = client.get("/api/status")
+    data = resp.json()
+    assert "battery_voltage" in data
+
+
+def test_status_includes_battery_soc(client):
+    resp = client.get("/api/status")
+    data = resp.json()
+    assert "battery_soc_pct" in data
+
+
+def test_status_battery_null_without_hardware(client):
+    resp = client.get("/api/status")
+    data = resp.json()
+    assert data["battery_voltage"] is None
+    assert data["battery_soc_pct"] is None
+
+
+def test_status_runtime_estimate_without_hardware(client):
+    resp = client.get("/api/status")
+    data = resp.json()
+    assert data["runtime_estimate_hours"] is not None
+    assert data["runtime_estimate_hours"] > 0

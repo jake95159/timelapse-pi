@@ -4,8 +4,8 @@ from PIL import Image
 from io import BytesIO
 
 from api.main import create_app
+from services.power import PowerService
 
-# Minimal valid JPEG for mock camera
 _img = Image.new("RGB", (10, 10), "red")
 _buf = BytesIO()
 _img.save(_buf, "JPEG")
@@ -41,7 +41,12 @@ def mock_wifi():
 
 
 @pytest.fixture
-def app(tmp_path, mock_camera, mock_wifi):
+def mock_power():
+    return PowerService(hw_enabled=False)
+
+
+@pytest.fixture
+def app(tmp_path, mock_camera, mock_wifi, mock_power):
     images_dir = tmp_path / "images"
     images_dir.mkdir()
     return create_app(
@@ -50,6 +55,7 @@ def app(tmp_path, mock_camera, mock_wifi):
         sequence_file=str(tmp_path / "sequence.txt"),
         camera=mock_camera,
         wifi=mock_wifi,
+        power=mock_power,
     )
 
 
