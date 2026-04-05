@@ -170,8 +170,8 @@ export function CameraSettings({ camera, onUpdate }: Props) {
           </View>
 
           {expanded === 'shrp' && <SliderStrip min={0} max={16} step={0.5} value={camera.sharpness} onValueChange={v => { onUpdate('sharpness', v); setExpanded(null); }} />}
-          {expanded === 'cntr' && <SliderStrip min={0} max={4} step={0.1} value={camera.contrast} onValueChange={v => { onUpdate('contrast', v); setExpanded(null); }} />}
-          {expanded === 'sat' && <SliderStrip min={0} max={4} step={0.1} value={camera.saturation} onValueChange={v => { onUpdate('saturation', v); setExpanded(null); }} />}
+          {expanded === 'cntr' && <SliderStrip min={0} max={32} step={0.5} value={camera.contrast} onValueChange={v => { onUpdate('contrast', v); setExpanded(null); }} />}
+          {expanded === 'sat' && <SliderStrip min={0} max={32} step={0.5} value={camera.saturation} onValueChange={v => { onUpdate('saturation', v); setExpanded(null); }} />}
           {expanded === 'brt' && <SliderStrip min={-1} max={1} step={0.1} value={camera.brightness} onValueChange={v => { onUpdate('brightness', v); setExpanded(null); }} />}
           {expanded === 'mtr' && (
             <DiscreteStrip options={METERING_MODES.map(m => ({ label: m.toUpperCase(), value: m }))} selected={camera.metering_mode} onSelect={v => { onUpdate('metering_mode', v); setExpanded(null); }} />

@@ -91,6 +91,40 @@ function OffsetInput({ value, onSubmit }: { value: number; onSubmit: (v: number)
   );
 }
 
+function EditableTimeValue({ value, onSubmit }: { value: string; onSubmit: (v: string) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState(value);
+
+  const handleSubmit = () => {
+    if (/^\d{1,2}:\d{2}$/.test(text)) {
+      onSubmit(text);
+    } else {
+      setText(value);
+    }
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <TextInput
+        style={styles.editInput}
+        value={text}
+        onChangeText={setText}
+        onBlur={handleSubmit}
+        onSubmitEditing={handleSubmit}
+        autoFocus
+        selectTextOnFocus
+      />
+    );
+  }
+
+  return (
+    <TouchableOpacity onPress={() => { setText(value); setEditing(true); }}>
+      <Text style={[styles.settingValue, glowStyle]}>{value}</Text>
+    </TouchableOpacity>
+  );
+}
+
 export function CaptureSettings({ softwareInterval, hardwareInterval, daylightOnly, sunriseOffset = 0, sunsetOffset = 0, windowStart = '06:00', windowEnd = '20:00', onUpdate }: Props) {
   const hwMinutes = Math.round(hardwareInterval / 60);
 
@@ -143,16 +177,12 @@ export function CaptureSettings({ softwareInterval, hardwareInterval, daylightOn
         <View style={[styles.row, { marginTop: spacing.xs }]}>
           <View style={styles.setting}>
             <Clock size={14} color={colors.textMuted} weight="duotone" />
-            <TouchableOpacity>
-              <Text style={[styles.settingValue, glowStyle]}>{windowStart}</Text>
-            </TouchableOpacity>
+            <EditableTimeValue value={windowStart} onSubmit={v => onUpdate('window_start', v)} />
           </View>
           <View style={styles.divider} />
           <View style={styles.setting}>
             <Clock size={14} color={colors.textMuted} weight="duotone" />
-            <TouchableOpacity>
-              <Text style={[styles.settingValue, glowStyle]}>{windowEnd}</Text>
-            </TouchableOpacity>
+            <EditableTimeValue value={windowEnd} onSubmit={v => onUpdate('window_end', v)} />
           </View>
         </View>
       )}

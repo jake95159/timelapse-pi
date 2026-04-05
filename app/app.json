@@ -8,11 +8,11 @@
     "userInterfaceStyle": "dark",
     "sdkVersion": "54.0.0",
     "splash": {
-      "backgroundColor": "#0f172a"
+      "backgroundColor": "#0d0d14"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#0f172a"
+        "backgroundColor": "#0d0d14"
       },
       "package": "com.timelapsePi.app",
       "permissions": [
@@ -29,13 +29,20 @@
       "bundleIdentifier": "com.timelapsePi.app",
       "infoPlist": {
         "NSPhotoLibraryAddUsageDescription": "Save rendered timelapse videos to your photo library",
-        "NSLocalNetworkUsageDescription": "Discover TimelapsePi camera on your local network"
+        "NSLocalNetworkUsageDescription": "Discover TimelapsePi camera on your local network",
+        "NSLocationWhenInUseUsageDescription": "Allow TimelapsePi to use your location to set latitude and longitude."
       }
     },
     "plugins": [
       "expo-file-system",
       "expo-media-library",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow TimelapsePi to use your location to set latitude and longitude."
+        }
+      ]
     ]
   }
 }
