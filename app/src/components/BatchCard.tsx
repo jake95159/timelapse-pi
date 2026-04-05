@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { BatchSummary } from '../api/client';
 import { api } from '../api/client';
-import { colors, spacing, typography } from '../theme';
+import { colors, spacing, typography, PIXEL_FONT } from '../theme';
 
 interface Props {
   batch: BatchSummary;
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   thumbPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   thumbPlaceholderText: { color: colors.textMuted, fontSize: 13 },
   info: { padding: spacing.md },
-  name: { ...typography.subtitle, marginBottom: spacing.xs },
+  name: { ...typography.subtitle, fontFamily: PIXEL_FONT, marginBottom: spacing.xs },
   count: { ...typography.caption },
   date: { ...typography.caption, marginTop: 2 },
 });

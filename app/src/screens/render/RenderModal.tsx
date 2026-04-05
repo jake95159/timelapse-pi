@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } fr
 import Slider from '@react-native-community/slider';
 import { renderTimelapse, saveToPhotos, RenderProgress } from '../../services/renderer';
 import { getLocalBatchImages } from '../../services/storage';
-import { colors, spacing, typography } from '../../theme';
+import { colors, spacing, typography, PIXEL_FONT } from '../../theme';
 
 interface Props {
   batchPath: string;
@@ -124,12 +124,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', padding: spacing.lg },
   modal: { backgroundColor: colors.background, borderRadius: 16, padding: spacing.xl },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  title: { ...typography.title },
+  title: { ...typography.title, fontFamily: PIXEL_FONT },
   close: { color: colors.textMuted, fontSize: 22 },
   batchName: { ...typography.subtitle, marginBottom: spacing.xs },
   info: { ...typography.caption, marginBottom: spacing.lg },
   control: { marginBottom: spacing.lg },
-  label: { ...typography.label, marginBottom: spacing.sm },
+  label: { ...typography.label, fontFamily: PIXEL_FONT, marginBottom: spacing.sm },
   estimate: { ...typography.caption, marginTop: spacing.xs },
   progressContainer: { alignItems: 'center', paddingVertical: spacing.lg },
   progressText: { color: colors.text, marginTop: spacing.md, marginBottom: spacing.sm },

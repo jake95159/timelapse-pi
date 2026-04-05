@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, TouchableOpacity, View, StyleSheet } from 'react-native';
-import { colors, spacing } from '../theme';
+import { colors, spacing, PIXEL_FONT } from '../theme';
 
 interface Props {
   uri: string;
@@ -30,9 +30,9 @@ export function ImageThumbnail({ uri, selected, selectionMode, onPress, onLongPr
 
 const styles = StyleSheet.create({
   container: { width: '32%', aspectRatio: 1, borderRadius: 8, overflow: 'hidden', marginBottom: spacing.xs },
-  selected: { borderWidth: 2, borderColor: colors.primary },
+  selected: { borderWidth: 2, borderColor: colors.text },
   image: { width: '100%', height: '100%' },
   checkbox: { position: 'absolute', top: 6, right: 6, width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: '#fff', backgroundColor: 'rgba(0,0,0,0.3)' },
-  checkboxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
+  checkboxChecked: { backgroundColor: colors.text, borderColor: colors.text },
   checkmark: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff', alignSelf: 'center', marginTop: 4 },
 });

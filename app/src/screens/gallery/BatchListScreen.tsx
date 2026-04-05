@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { useBatches } from '../../hooks/useBatches';
 import { BatchCard } from '../../components/BatchCard';
-import { colors, spacing, typography } from '../../theme';
+import { colors, spacing, typography, PIXEL_FONT } from '../../theme';
 
 export function BatchListScreen({ navigation }: any) {
   const { data: batches, isPending, refetch } = useBatches();
@@ -40,6 +40,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   center: { flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' },
   list: { padding: spacing.lg },
-  title: { ...typography.title, fontSize: 24, marginBottom: spacing.lg },
+  title: { ...typography.title, fontFamily: PIXEL_FONT, fontSize: 24, marginBottom: spacing.lg },
   empty: { ...typography.body, color: colors.textMuted, textAlign: 'center', marginTop: spacing.xl },
 });

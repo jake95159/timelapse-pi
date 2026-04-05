@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Image, TouchableOpacity, Text, StyleSheet, Dimensions } from 'react-native';
 import { api } from '../../api/client';
-import { colors, spacing } from '../../theme';
+import { colors, spacing, PIXEL_FONT } from '../../theme';
 
 const { width, height } = Dimensions.get('window');
 
@@ -28,5 +28,5 @@ const styles = StyleSheet.create({
   closeButton: { position: 'absolute', top: 50, right: 20, width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   closeText: { color: '#fff', fontSize: 18 },
   footer: { position: 'absolute', bottom: 40, left: 0, right: 0, alignItems: 'center' },
-  imageId: { color: colors.textSecondary, fontSize: 14 },
+  imageId: { color: colors.textSecondary, fontSize: 14, fontFamily: PIXEL_FONT },
 });

@@ -4,7 +4,7 @@ import { useBatchDetail, useRenameBatch, useDeleteBatch } from '../../hooks/useB
 import { ImageThumbnail } from '../../components/ImageThumbnail';
 import { downloadBatchImages, DownloadProgress } from '../../services/storage';
 import { api } from '../../api/client';
-import { colors, spacing, typography } from '../../theme';
+import { colors, spacing, typography, PIXEL_FONT } from '../../theme';
 import * as FileSystem from 'expo-file-system';
 import { RenderModal } from '../render/RenderModal';
 
@@ -149,8 +149,8 @@ export function BatchDetailScreen({ route, navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: { padding: spacing.lg, paddingBottom: spacing.sm },
-  back: { color: colors.primary, fontSize: 16, marginBottom: spacing.sm },
-  title: { ...typography.title, fontSize: 22 },
+  back: { color: colors.textMuted, fontSize: 16, marginBottom: spacing.sm, fontFamily: PIXEL_FONT },
+  title: { ...typography.title, fontFamily: PIXEL_FONT, fontSize: 22 },
   count: { ...typography.caption, marginTop: spacing.xs },
   actions: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.md },
   actionBtn: { backgroundColor: colors.surface, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 8 },
