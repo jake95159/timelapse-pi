@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useConnection } from '../providers/ConnectionProvider';
-import { colors, spacing } from '../theme';
+import { colors, spacing, PIXEL_FONT, glowStyle } from '../theme';
 
 export function ConnectionBar() {
   const { state, piAddress, connect } = useConnection();
@@ -36,8 +36,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs + 2,
   },
-  connected: { backgroundColor: 'rgba(34, 197, 94, 0.1)' },
-  disconnected: { backgroundColor: 'rgba(239, 68, 68, 0.1)' },
+  connected: { backgroundColor: 'rgba(74, 153, 104, 0.1)' },
+  disconnected: { backgroundColor: 'rgba(204, 51, 51, 0.1)' },
   dot: {
     width: 8,
     height: 8,
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   dotRed: { backgroundColor: colors.error },
-  text: { color: colors.text, fontSize: 13 },
+  text: { color: colors.text, fontSize: 13, fontFamily: PIXEL_FONT },
   address: { color: colors.textSecondary, fontSize: 12, marginLeft: 'auto' },
   tapHint: { color: colors.textSecondary, fontSize: 12, marginLeft: 'auto' },
 });

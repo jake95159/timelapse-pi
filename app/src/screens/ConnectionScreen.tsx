@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useConnection } from '../providers/ConnectionProvider';
-import { colors, spacing, typography } from '../theme';
+import { colors, spacing, typography, PIXEL_FONT, glowStyle } from '../theme';
 
 export function ConnectionScreen() {
   const { state, lastStatus, connect } = useConnection();
@@ -66,7 +66,7 @@ export function ConnectionScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
   container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: spacing.xl },
-  title: { ...typography.title, fontSize: 28, marginBottom: spacing.md },
+  title: { ...typography.title, fontFamily: PIXEL_FONT, fontSize: 28, marginBottom: spacing.md, ...glowStyle },
   subtitle: { ...typography.body, color: colors.textSecondary, marginBottom: spacing.xl, textAlign: 'center' },
   button: { backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, borderRadius: 12, marginBottom: spacing.md },
   buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
