@@ -34,7 +34,8 @@
     },
     "plugins": [
       "expo-file-system",
-      "expo-media-library"
+      "expo-media-library",
+      "expo-font"
     ]
   }
 }
