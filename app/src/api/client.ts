@@ -7,6 +7,8 @@ export interface PiStatus {
   last_capture: { image_id: string; batch_id: string } | null;
   storage_used_pct: number;
   storage_free_mb: number;
+  battery_voltage: number | null;
+  battery_soc_pct: number | null;
   battery_mah: number;
   runtime_estimate_hours: number | null;
   software_interval_sec: number;
