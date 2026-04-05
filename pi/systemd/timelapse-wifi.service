@@ -9,4 +9,4 @@ ExecStart=/bin/bash /home/pi/timelapse/systemd/wifi-startup.sh
 StandardOutput=journal
 StandardError=journal
 RemainAfterExit=yes
-TimeoutStartSec=60
+TimeoutStartSec=90

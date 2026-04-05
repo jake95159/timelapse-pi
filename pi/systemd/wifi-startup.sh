@@ -3,21 +3,27 @@
 set -euo pipefail
 
 CONFIG="/home/pi/timelapse/tl_config.json"
-TIMEOUT=15
+TIMEOUT=30
 
 echo "WiFi: Checking for saved networks..."
 
-# Check if already connected
-if nmcli -t -f STATE general | grep -q "connected"; then
-    echo "WiFi: Already connected"
-    exit 0
-fi
+# Disable power save on WiFi
+/usr/sbin/iw wlan0 set power_save off 2>/dev/null || true
 
-# Try connecting to any saved WiFi network
-if nmcli dev wifi connect --wait "$TIMEOUT" 2>/dev/null; then
-    echo "WiFi: Connected to saved network"
-    exit 0
-fi
+# Helper: check if wlan0 has an IP address (the real test of connectivity)
+wlan0_has_ip() {
+    nmcli -t -f IP4.ADDRESS device show wlan0 2>/dev/null | grep -q "IP4.ADDRESS"
+}
+
+# Wait for NetworkManager to auto-connect to a saved network
+echo "WiFi: Waiting ${TIMEOUT}s for auto-connect..."
+for i in $(seq 1 "$TIMEOUT"); do
+    if wlan0_has_ip; then
+        echo "WiFi: Connected to saved network (wlan0 has IP)"
+        exit 0
+    fi
+    sleep 1
+done
 
 # No saved network found — start AP mode
 echo "WiFi: No saved network, starting AP..."

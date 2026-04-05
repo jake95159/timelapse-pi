@@ -1,8 +1,7 @@
 [Unit]
 Description=Timelapse Mode Detection (GPIO27)
-DefaultDependencies=no
-After=local-fs.target
-Before=sysinit.target
+After=network-online.target NetworkManager.service
+Wants=network-online.target
 
 [Service]
 Type=oneshot
@@ -12,4 +11,4 @@ StandardError=journal
 RemainAfterExit=yes
 
 [Install]
-WantedBy=sysinit.target
+WantedBy=multi-user.target

@@ -95,10 +95,8 @@ ssh "$PI_HOST" "
     chmod +x ~/timelapse/systemd/timelapse-mode.sh
     chmod +x ~/timelapse/systemd/wifi-startup.sh
 
-    # Install but do NOT enable boot services yet
-    # (wifi-startup.sh races with NM auto-connect — needs debugging with console access)
     sudo systemctl daemon-reload
-    # sudo systemctl enable timelapse-mode.service  # TODO: enable after boot flow is fixed
+    sudo systemctl enable timelapse-mode.service
 "
 echo "  ✓ Systemd services installed"
 
