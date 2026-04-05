@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, Switch, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { MapPin, Crosshair, Battery as BatteryIcon, WifiHigh } from 'phosphor-react-native';
+import * as Location from 'expo-location';
 import { useSettings, useUpdateSettings } from '../../hooks/useSettings';
-import { colors, spacing, typography } from '../../theme';
+import { colors, spacing, glowStyle, PIXEL_FONT } from '../../theme';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -12,10 +14,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function SettingRow({ label, children }: { label: string; children: React.ReactNode }) {
+function SettingRow({ label, icon, children }: { label: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
     <View style={styles.row}>
-      <Text style={styles.rowLabel}>{label}</Text>
+      <View style={styles.rowLabelWrap}>
+        {icon}
+        <Text style={styles.rowLabel}>{label}</Text>
+      </View>
       {children}
     </View>
   );
@@ -43,7 +48,6 @@ export function SettingsScreen({ navigation }: any) {
     current[keys[keys.length - 1]] = value;
     updateSettings.mutate(update);
 
-    // Update local state
     const newLocal = JSON.parse(JSON.stringify(localSettings));
     let ref = newLocal;
     for (let i = 0; i < keys.length - 1; i++) ref = ref[keys[i]];
@@ -51,98 +55,63 @@ export function SettingsScreen({ navigation }: any) {
     setLocalSettings(newLocal);
   };
 
+  const useCurrentLocation = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'Location permission is required');
+        return;
+      }
+      const loc = await Location.getCurrentPositionAsync({});
+      save('location.lat', Math.round(loc.coords.latitude * 10000) / 10000);
+      save('location.lon', Math.round(loc.coords.longitude * 10000) / 10000);
+    } catch (e: any) {
+      Alert.alert('Location Error', e.message);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Settings</Text>
+      <Text style={styles.title}>SETTINGS</Text>
 
-      <Section title="CAPTURE">
-        <SettingRow label="Software Interval (sec)">
+      <Section title="LOCATION">
+        <SettingRow label="Latitude" icon={<MapPin size={16} color={colors.textMuted} weight="duotone" />}>
           <TextInput
             style={styles.input}
-            value={String(localSettings.software_interval_sec)}
-            onChangeText={v => save('software_interval_sec', parseInt(v, 10) || 0)}
-            keyboardType="numeric"
-          />
-        </SettingRow>
-        <SettingRow label="Hardware Interval (sec)">
-          <Text style={styles.readOnly}>{localSettings.hardware_interval_sec}</Text>
-        </SettingRow>
-      </Section>
-
-      <Section title="CAMERA DEFAULTS">
-        <SettingRow label="ISO">
-          <TextInput
-            style={styles.input}
-            value={String(localSettings.camera?.iso)}
-            onChangeText={v => save('camera.iso', parseInt(v, 10) || 100)}
-            keyboardType="numeric"
-          />
-        </SettingRow>
-        <SettingRow label="Exposure Mode">
-          <Text style={styles.readOnly}>{localSettings.camera?.exposure_mode}</Text>
-        </SettingRow>
-        <SettingRow label="AWB Mode">
-          <Text style={styles.readOnly}>{localSettings.camera?.awb_mode}</Text>
-        </SettingRow>
-      </Section>
-
-      <Section title="LOCATION & DAYLIGHT">
-        <SettingRow label="Latitude">
-          <TextInput
-            style={styles.input}
-            value={String(localSettings.location?.lat)}
+            value={String(localSettings.location?.lat ?? 0)}
             onChangeText={v => save('location.lat', parseFloat(v) || 0)}
             keyboardType="decimal-pad"
           />
         </SettingRow>
-        <SettingRow label="Longitude">
+        <SettingRow label="Longitude" icon={<MapPin size={16} color={colors.textMuted} weight="duotone" />}>
           <TextInput
             style={styles.input}
-            value={String(localSettings.location?.lon)}
+            value={String(localSettings.location?.lon ?? 0)}
             onChangeText={v => save('location.lon', parseFloat(v) || 0)}
             keyboardType="decimal-pad"
           />
         </SettingRow>
-        <SettingRow label="Daylight Only">
-          <Switch
-            value={localSettings.daylight_only}
-            onValueChange={v => save('daylight_only', v)}
-            trackColor={{ true: colors.primary }}
-          />
-        </SettingRow>
-        <SettingRow label="Window Start">
-          <TextInput
-            style={styles.input}
-            value={localSettings.window_start}
-            onChangeText={v => save('window_start', v)}
-          />
-        </SettingRow>
-        <SettingRow label="Window End">
-          <TextInput
-            style={styles.input}
-            value={localSettings.window_end}
-            onChangeText={v => save('window_end', v)}
-          />
-        </SettingRow>
+        <TouchableOpacity style={styles.gpsButton} onPress={useCurrentLocation}>
+          <Crosshair size={16} color={colors.text} weight="duotone" />
+          <Text style={styles.gpsButtonText}>Use Current Location</Text>
+        </TouchableOpacity>
       </Section>
 
       <Section title="DEVICE">
-        <SettingRow label="Battery (mAh)">
+        <SettingRow label="Battery (mAh)" icon={<BatteryIcon size={16} color={colors.textMuted} weight="duotone" />}>
           <TextInput
             style={styles.input}
-            value={String(localSettings.battery_mah)}
-            onChangeText={v => save('battery_mah', parseInt(v, 10) || 0)}
+            value={String(localSettings.power?.battery_mah ?? localSettings.battery_mah ?? 9700)}
+            onChangeText={v => save('power.battery_mah', parseInt(v, 10) || 0)}
             keyboardType="numeric"
           />
         </SettingRow>
       </Section>
 
       <Section title="NETWORK">
-        <TouchableOpacity
-          style={styles.navButton}
-          onPress={() => navigation.navigate('Network')}
-        >
-          <Text style={styles.navButtonText}>WiFi Management →</Text>
+        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Network')}>
+          <WifiHigh size={18} color={colors.text} weight="duotone" />
+          <Text style={styles.navButtonText}>WiFi Management</Text>
         </TouchableOpacity>
       </Section>
     </ScrollView>
@@ -152,13 +121,15 @@ export function SettingsScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   content: { padding: spacing.lg },
-  title: { ...typography.title, fontSize: 24, marginBottom: spacing.lg },
+  title: { fontFamily: PIXEL_FONT, fontSize: 18, color: colors.text, marginBottom: spacing.lg },
   section: { marginBottom: spacing.xl },
-  sectionTitle: { ...typography.label, marginBottom: spacing.md },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.surfaceLight },
-  rowLabel: { ...typography.body, flex: 1 },
-  input: { backgroundColor: colors.surface, color: colors.text, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 8, textAlign: 'right', width: 100 },
-  readOnly: { color: colors.textSecondary, fontSize: 14 },
-  navButton: { backgroundColor: colors.surface, padding: spacing.md, borderRadius: 12, alignItems: 'center' },
-  navButtonText: { color: colors.primary, fontWeight: '600', fontSize: 15 },
+  sectionTitle: { fontFamily: PIXEL_FONT, fontSize: 9, color: colors.textDim, letterSpacing: 2, marginBottom: spacing.md },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
+  rowLabelWrap: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flex: 1 },
+  rowLabel: { fontSize: 14, color: colors.text },
+  input: { backgroundColor: colors.surfaceLight, color: colors.text, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 4, textAlign: 'right', width: 100, borderWidth: 1, borderColor: colors.border },
+  gpsButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surfaceLight, padding: spacing.md, borderRadius: 4, marginTop: spacing.md, justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
+  gpsButtonText: { color: colors.text, fontSize: 14 },
+  navButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surfaceLight, padding: spacing.md, borderRadius: 4, justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
+  navButtonText: { color: colors.text, fontWeight: '500', fontSize: 15 },
 });
