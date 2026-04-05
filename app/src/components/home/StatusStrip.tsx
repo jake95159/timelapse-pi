@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { HardDrives, Battery } from 'phosphor-react-native';
+import { HardDrives, BatteryHigh } from 'phosphor-react-native';
 import { colors, spacing, glowStyle, PIXEL_FONT } from '../../theme';
 
 interface Props {
@@ -27,7 +27,7 @@ export function StatusStrip({ storageFreeGb, storagePct, batteryVoltage, battery
         {batteryVoltage != null && (
           <Text style={[styles.text, glowStyle]}>{batteryVoltage.toFixed(1)}V</Text>
         )}
-        <Battery size={14} color={colors.textSecondary} weight="duotone" />
+        <BatteryHigh size={14} color={colors.textSecondary} weight="duotone" />
         <Text style={[styles.text, glowStyle]}>
           {batterySoc != null ? `${Math.round(batterySoc)}%` : '--'}
         </Text>

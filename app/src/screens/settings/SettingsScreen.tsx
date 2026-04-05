@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { MapPin, Crosshair, Battery as BatteryIcon, WifiHigh } from 'phosphor-react-native';
+import { MapPin, Crosshair, BatteryHigh as BatteryIcon, WifiHigh } from 'phosphor-react-native';
 import * as Location from 'expo-location';
 import { useSettings, useUpdateSettings } from '../../hooks/useSettings';
 import { colors, spacing, glowStyle, PIXEL_FONT } from '../../theme';
