@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { ArrowLeft, WifiHigh, Plus } from 'phosphor-react-native';
 import { useNetworkStatus, useWifiScan, useWifiConnect, useStartAP, useSavedNetworks, useRemoveSavedNetwork } from '../../hooks/useNetwork';
-import { colors, spacing, typography } from '../../theme';
+import { colors, spacing, typography, PIXEL_FONT } from '../../theme';
 
 export function NetworkScreen({ navigation }: any) {
   const { data: netStatus } = useNetworkStatus();
@@ -12,6 +13,9 @@ export function NetworkScreen({ navigation }: any) {
   const removeSaved = useRemoveSavedNetwork();
   const [password, setPassword] = useState('');
   const [selectedSsid, setSelectedSsid] = useState<string | null>(null);
+  const [showAddManual, setShowAddManual] = useState(false);
+  const [manualSsid, setManualSsid] = useState('');
+  const [manualPassword, setManualPassword] = useState('');
 
   const handleConnect = () => {
     if (!selectedSsid) return;
@@ -19,6 +23,15 @@ export function NetworkScreen({ navigation }: any) {
     Alert.alert('Connecting', `Connecting to ${selectedSsid}...\nThe app will reconnect shortly.`);
     setSelectedSsid(null);
     setPassword('');
+  };
+
+  const handleManualConnect = () => {
+    if (!manualSsid.trim()) return;
+    wifiConnect.mutate({ ssid: manualSsid.trim(), password: manualPassword });
+    Alert.alert('Connecting', `Connecting to ${manualSsid}...`);
+    setShowAddManual(false);
+    setManualSsid('');
+    setManualPassword('');
   };
 
   return (
@@ -94,6 +107,46 @@ export function NetworkScreen({ navigation }: any) {
         ))}
       </View>
 
+      {/* Add network manually */}
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.label}>ADD NETWORK</Text>
+        </View>
+        {!showAddManual ? (
+          <TouchableOpacity style={styles.addButton} onPress={() => setShowAddManual(true)}>
+            <Plus size={16} color={colors.text} weight="duotone" />
+            <Text style={styles.addButtonText}>Add Network Manually</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.manualForm}>
+            <TextInput
+              style={styles.input}
+              placeholder="Network SSID"
+              placeholderTextColor={colors.textMuted}
+              value={manualSsid}
+              onChangeText={setManualSsid}
+              autoFocus
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor={colors.textMuted}
+              value={manualPassword}
+              onChangeText={setManualPassword}
+              secureTextEntry
+            />
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              <TouchableOpacity style={[styles.connectBtn, { flex: 1 }]} onPress={handleManualConnect}>
+                <Text style={styles.connectBtnText}>Connect</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.connectBtn, { backgroundColor: colors.surface }]} onPress={() => setShowAddManual(false)}>
+                <Text style={[styles.connectBtnText, { color: colors.textMuted }]}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </View>
+
       {/* AP Mode */}
       <TouchableOpacity
         style={styles.apButton}
@@ -113,26 +166,29 @@ export function NetworkScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, padding: spacing.lg },
   header: { marginBottom: spacing.lg },
-  back: { color: colors.primary, fontSize: 16, marginBottom: spacing.sm },
-  title: { ...typography.title, fontSize: 24 },
+  back: { color: colors.textMuted, fontSize: 16, marginBottom: spacing.sm, fontFamily: PIXEL_FONT },
+  title: { fontFamily: PIXEL_FONT, fontSize: 24, color: colors.text },
   statusCard: { backgroundColor: colors.surface, borderRadius: 12, padding: spacing.md, marginBottom: spacing.lg },
   statusText: { ...typography.subtitle, marginTop: spacing.xs },
   statusIp: { ...typography.caption, marginTop: 2 },
   section: { marginBottom: spacing.xl },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.sm },
-  label: { ...typography.label },
-  scanBtn: { color: colors.primary, fontSize: 14, fontWeight: '500' },
-  networkRow: { backgroundColor: colors.surface, padding: spacing.md, borderRadius: 8, flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs },
-  networkSelected: { borderWidth: 1, borderColor: colors.primary },
+  label: { fontFamily: PIXEL_FONT, fontSize: 9, textTransform: 'uppercase', color: colors.textDim, letterSpacing: 2 },
+  scanBtn: { color: colors.text, fontSize: 14, fontWeight: '500' },
+  networkRow: { backgroundColor: colors.surface, padding: spacing.md, borderRadius: 8, flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs, borderWidth: 1, borderColor: colors.border },
+  networkSelected: { borderWidth: 1, borderColor: colors.text },
   networkSsid: { ...typography.body, flex: 1 },
   networkSignal: { ...typography.caption, marginRight: spacing.md },
   networkSec: { ...typography.caption, width: 50 },
   connectForm: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
-  input: { flex: 1, backgroundColor: colors.surface, color: colors.text, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 8 },
-  connectBtn: { backgroundColor: colors.primary, paddingHorizontal: spacing.lg, borderRadius: 8, justifyContent: 'center' },
-  connectBtnText: { color: '#fff', fontWeight: '600' },
-  savedRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.surfaceLight },
-  removeBtn: { color: colors.error, fontSize: 13 },
+  input: { flex: 1, backgroundColor: colors.surface, color: colors.text, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
+  connectBtn: { backgroundColor: colors.surfaceLight, paddingHorizontal: spacing.lg, borderRadius: 8, justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
+  connectBtnText: { color: colors.text, fontWeight: '600' },
+  savedRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.border },
+  removeBtn: { color: colors.danger, fontSize: 13 },
   apButton: { backgroundColor: colors.surface, padding: spacing.md, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.warning },
   apButtonText: { color: colors.warning, fontWeight: '600', fontSize: 15 },
+  addButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surfaceLight, padding: spacing.md, borderRadius: 4, justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
+  addButtonText: { color: colors.text, fontSize: 14 },
+  manualForm: { gap: spacing.sm },
 });
