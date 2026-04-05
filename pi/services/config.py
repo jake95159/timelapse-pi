@@ -5,6 +5,8 @@ import copy
 DEFAULT_CONFIG = {
     "location": {"lat": 0.0, "lon": 0.0},
     "daylight_only": False,
+    "sunrise_offset_min": 0,
+    "sunset_offset_min": 0,
     "window_start": "00:00",
     "window_end": "23:59",
     "hardware_interval_sec": 3600,
@@ -14,6 +16,13 @@ DEFAULT_CONFIG = {
         "exposure_mode": "auto",
         "shutter_speed": None,
         "awb_mode": "auto",
+        "ev_compensation": 0.0,
+        "metering_mode": "centre",
+        "brightness": 0.0,
+        "contrast": 1.0,
+        "saturation": 1.0,
+        "sharpness": 1.0,
+        "noise_reduction": "off",
     },
     "ap": {
         "ssid": "TimelapsePi",
