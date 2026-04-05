@@ -67,7 +67,7 @@ echo "▸ [4/8] Setting up Python venv..."
 ssh "$PI_HOST" "
     cd ~/timelapse
     python3 -m venv --system-site-packages venv 2>/dev/null || true
-    venv/bin/pip install --quiet fastapi uvicorn python-multipart
+    venv/bin/pip install --quiet fastapi uvicorn python-multipart adafruit-circuitpython-ads1x15
 "
 echo "  ✓ Python venv ready"
 
@@ -131,10 +131,19 @@ ssh "$PI_HOST" "
     grep -q 'hdmi_blanking=2' \$CONFIG || echo 'hdmi_blanking=2' | sudo tee -a \$CONFIG > /dev/null
     grep -q 'disable_splash=1' \$CONFIG || echo 'disable_splash=1' | sudo tee -a \$CONFIG > /dev/null
 
+    # Enable I2C for ADS1115 ADC
+    if ! grep -q '^dtparam=i2c_arm=on' \$CONFIG; then
+        sudo sed -i 's/^#dtparam=i2c_arm=on/dtparam=i2c_arm=on/' \$CONFIG
+        grep -q '^dtparam=i2c_arm=on' \$CONFIG || echo 'dtparam=i2c_arm=on' | sudo tee -a \$CONFIG > /dev/null
+    fi
+
+    # Ensure i2c-dev module loads at boot
+    echo 'i2c-dev' | sudo tee /etc/modules-load.d/i2c.conf > /dev/null
+
     # Set hostname for mDNS
     sudo hostnamectl set-hostname timelapse-pi
 "
-echo "  ✓ Boot config applied (GPIO17 pd, GPIO27 pd, hostname)"
+echo "  ✓ Boot config applied (GPIO17 pd, GPIO27 pd, I2C, hostname)"
 
 # ----------------------------------------------------------
 # 8. Verify installation
