@@ -71,6 +71,13 @@ class CameraService:
         exposure_mode: str = None,
         awb_mode: str = None,
         shutter_speed: int = None,
+        ev_compensation: float = None,
+        metering_mode: str = None,
+        brightness: float = None,
+        contrast: float = None,
+        saturation: float = None,
+        sharpness: float = None,
+        noise_reduction: str = None,
     ) -> None:
         """Apply camera control settings."""
         controls = {}
@@ -92,6 +99,24 @@ class CameraService:
                 controls["AwbMode"] = awb_map[awb_mode]
         if shutter_speed is not None:
             controls["ExposureTime"] = shutter_speed
+        if ev_compensation is not None:
+            controls["ExposureValue"] = ev_compensation
+        if metering_mode is not None:
+            metering_map = {"centre": 0, "spot": 1, "matrix": 2}
+            if metering_mode in metering_map:
+                controls["AeMeteringMode"] = metering_map[metering_mode]
+        if brightness is not None:
+            controls["Brightness"] = brightness
+        if contrast is not None:
+            controls["Contrast"] = contrast
+        if saturation is not None:
+            controls["Saturation"] = saturation
+        if sharpness is not None:
+            controls["Sharpness"] = sharpness
+        if noise_reduction is not None:
+            nr_map = {"off": 0, "fast": 1, "high_quality": 2, "minimal": 3}
+            if noise_reduction in nr_map:
+                controls["NoiseReductionMode"] = nr_map[noise_reduction]
         if controls:
             with self._lock:
                 self._camera.set_controls(controls)
