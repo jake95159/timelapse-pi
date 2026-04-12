@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { MapPin, Crosshair, BatteryHigh as BatteryIcon, WifiHigh } from 'phosphor-react-native';
+import { MapPin, Crosshair, BatteryHigh as BatteryIcon, WifiHigh, Camera } from 'phosphor-react-native';
 import * as Location from 'expo-location';
 import { useSettings, useUpdateSettings } from '../../hooks/useSettings';
 import { colors, spacing, glowStyle, PIXEL_FONT } from '../../theme';
@@ -97,6 +97,30 @@ export function SettingsScreen({ navigation }: any) {
         </TouchableOpacity>
       </Section>
 
+      <Section title="CAMERA TUNING">
+        <View style={styles.tuningRow}>
+          {(['standard', 'scientific'] as const).map(t => {
+            const active = (localSettings.camera?.tuning ?? 'standard') === t;
+            return (
+              <TouchableOpacity
+                key={t}
+                style={[styles.tuningOption, active && styles.tuningOptionActive]}
+                onPress={() => save('camera.tuning', t)}
+              >
+                <Text style={[styles.tuningOptionText, active && styles.tuningOptionTextActive]}>
+                  {t.toUpperCase()}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <Text style={styles.tuningHint}>
+          Standard: full processing (lens shading, HDR, tuned NR){'\n'}
+          Scientific: Rec.709 gamma, no lens shading — consistent frame-to-frame
+        </Text>
+        <Text style={styles.tuningWarning}>Changing tuning restarts camera (~2 sec)</Text>
+      </Section>
+
       <Section title="DEVICE">
         <SettingRow label="Battery (mAh)" icon={<BatteryIcon size={16} color={colors.textMuted} weight="duotone" />}>
           <TextInput
@@ -132,4 +156,11 @@ const styles = StyleSheet.create({
   gpsButtonText: { color: colors.text, fontSize: 14 },
   navButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surfaceLight, padding: spacing.md, borderRadius: 4, justifyContent: 'center', borderWidth: 1, borderColor: colors.border },
   navButtonText: { color: colors.text, fontWeight: '500', fontSize: 15 },
+  tuningRow: { flexDirection: 'row', gap: spacing.sm },
+  tuningOption: { flex: 1, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, backgroundColor: colors.surfaceLight, borderWidth: 1, borderColor: colors.border, borderRadius: 4, alignItems: 'center' },
+  tuningOptionActive: { borderColor: colors.text, backgroundColor: colors.surface },
+  tuningOptionText: { fontFamily: PIXEL_FONT, fontSize: 10, color: colors.textMuted, letterSpacing: 1 },
+  tuningOptionTextActive: { color: colors.text },
+  tuningHint: { fontSize: 11, color: colors.textDim, marginTop: spacing.sm, lineHeight: 16 },
+  tuningWarning: { fontSize: 10, color: '#806040', marginTop: spacing.xs },
 });

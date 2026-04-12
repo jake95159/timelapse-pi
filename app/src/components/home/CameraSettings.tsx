@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import { CaretDown } from 'phosphor-react-native';
+import { CaretDown, Eyedropper, Crosshair } from 'phosphor-react-native';
 import Slider from '@react-native-community/slider';
 import { colors, spacing, glowStyle, PIXEL_FONT } from '../../theme';
+import type { TapMode } from './Viewfinder';
 
 interface CameraConfig {
-  iso: number;
+  analogue_gain: number;
   exposure_mode: string;
   awb_mode: string;
+  red_gain: number;
+  blue_gain: number;
   shutter_speed: number | null;
   ev_compensation: number;
   metering_mode: string;
@@ -21,10 +24,12 @@ interface CameraConfig {
 interface Props {
   camera: CameraConfig;
   onUpdate: (key: string, value: unknown) => void;
+  tapMode?: TapMode;
+  onEyedropper?: () => void;
+  onMeterPick?: () => void;
 }
 
-const ISO_VALUES = [100, 200, 400, 800, 1600, 3200];
-const AWB_MODES = ['auto', 'daylight', 'cloudy', 'tungsten', 'fluorescent'];
+const AWB_MODES = ['auto', 'daylight', 'cloudy', 'tungsten', 'fluorescent', 'indoor', 'manual'];
 const SHUTTER_SPEEDS = [
   { label: '1/1000', value: 1000 },
   { label: '1/500', value: 2000 },
@@ -90,7 +95,7 @@ function SliderStrip({ min, max, step, value, onValueChange, formatLabel }: { mi
   );
 }
 
-export function CameraSettings({ camera, onUpdate }: Props) {
+export function CameraSettings({ camera, onUpdate, tapMode = 'none', onEyedropper, onMeterPick }: Props) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [tier2Open, setTier2Open] = useState(false);
 
@@ -108,7 +113,7 @@ export function CameraSettings({ camera, onUpdate }: Props) {
 
       {/* Tier 1 */}
       <View style={styles.chipRow}>
-        <Chip label="ISO" value={String(camera.iso)} active={expanded === 'iso'} onPress={() => toggle('iso')} />
+        <Chip label="GAIN" value={`${camera.analogue_gain.toFixed(1)}×`} active={expanded === 'gain'} onPress={() => toggle('gain')} />
         <Chip label="EXP" value={camera.exposure_mode === 'auto' ? 'AUTO' : 'MAN'} active={expanded === 'exp'} onPress={() => toggle('exp')} />
         <Chip label="WB" value={camera.awb_mode.toUpperCase()} active={expanded === 'wb'} onPress={() => toggle('wb')} />
         <Chip label="EV" value={camera.ev_compensation >= 0 ? `+${camera.ev_compensation}` : String(camera.ev_compensation)} active={expanded === 'ev'} onPress={() => toggle('ev')} />
@@ -118,12 +123,8 @@ export function CameraSettings({ camera, onUpdate }: Props) {
       </View>
 
       {/* Tier 1 inline strips */}
-      {expanded === 'iso' && (
-        <DiscreteStrip
-          options={ISO_VALUES.map(v => ({ label: String(v), value: v }))}
-          selected={camera.iso}
-          onSelect={v => { onUpdate('iso', v); setExpanded(null); }}
-        />
+      {expanded === 'gain' && (
+        <SliderStrip min={1.0} max={22.0} step={0.1} value={camera.analogue_gain} onValueChange={v => { onUpdate('analogue_gain', Math.round(v * 10) / 10); setExpanded(null); }} formatLabel={v => `${v.toFixed(1)}×`} />
       )}
       {expanded === 'exp' && (
         <DiscreteStrip
@@ -148,6 +149,54 @@ export function CameraSettings({ camera, onUpdate }: Props) {
           selected={camera.shutter_speed}
           onSelect={v => { onUpdate('shutter_speed', v); setExpanded(null); }}
         />
+      )}
+
+      {/* Manual WB: persistent R/B gain sliders + eyedropper */}
+      {camera.awb_mode === 'manual' && (
+        <View style={styles.wbGainsBox}>
+          <View style={styles.wbHeaderRow}>
+            <Text style={styles.wbHeaderLabel}>COLOUR GAINS</Text>
+            {onEyedropper && (
+              <TouchableOpacity
+                style={[styles.pickBtn, tapMode === 'wb' && styles.pickBtnActive]}
+                onPress={onEyedropper}
+              >
+                <Eyedropper size={14} color={tapMode === 'wb' ? colors.text : colors.textMuted} weight={tapMode === 'wb' ? 'fill' : 'regular'} />
+                <Text style={[styles.pickLabel, tapMode === 'wb' && { color: colors.text }]}>PICK</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <View style={styles.wbGainRow}>
+            <Text style={[styles.wbGainLabel, { color: '#ff8080' }]}>R</Text>
+            <Text style={styles.wbGainValue}>{camera.red_gain.toFixed(2)}×</Text>
+            <Slider
+              style={styles.wbGainSlider}
+              minimumValue={0.5}
+              maximumValue={4.0}
+              step={0.05}
+              value={camera.red_gain}
+              onSlidingComplete={v => onUpdate('red_gain', Math.round(v * 100) / 100)}
+              minimumTrackTintColor="#ff8080"
+              maximumTrackTintColor={colors.border}
+              thumbTintColor={colors.text}
+            />
+          </View>
+          <View style={styles.wbGainRow}>
+            <Text style={[styles.wbGainLabel, { color: '#8080ff' }]}>B</Text>
+            <Text style={styles.wbGainValue}>{camera.blue_gain.toFixed(2)}×</Text>
+            <Slider
+              style={styles.wbGainSlider}
+              minimumValue={0.5}
+              maximumValue={4.0}
+              step={0.05}
+              value={camera.blue_gain}
+              onSlidingComplete={v => onUpdate('blue_gain', Math.round(v * 100) / 100)}
+              minimumTrackTintColor="#8080ff"
+              maximumTrackTintColor={colors.border}
+              thumbTintColor={colors.text}
+            />
+          </View>
+        </View>
       )}
 
       {/* Tier 2 toggle */}
@@ -175,6 +224,18 @@ export function CameraSettings({ camera, onUpdate }: Props) {
           {expanded === 'brt' && <SliderStrip min={-1} max={1} step={0.1} value={camera.brightness} onValueChange={v => { onUpdate('brightness', v); setExpanded(null); }} />}
           {expanded === 'mtr' && (
             <DiscreteStrip options={METERING_MODES.map(m => ({ label: m.toUpperCase(), value: m }))} selected={camera.metering_mode} onSelect={v => { onUpdate('metering_mode', v); setExpanded(null); }} />
+          )}
+          {camera.metering_mode === 'spot' && onMeterPick && (
+            <View style={styles.meterPickRow}>
+              <Text style={styles.wbHeaderLabel}>SPOT POINT</Text>
+              <TouchableOpacity
+                style={[styles.pickBtn, tapMode === 'meter' && styles.pickBtnActive]}
+                onPress={onMeterPick}
+              >
+                <Crosshair size={14} color={tapMode === 'meter' ? colors.text : colors.textMuted} weight={tapMode === 'meter' ? 'fill' : 'regular'} />
+                <Text style={[styles.pickLabel, tapMode === 'meter' && { color: colors.text }]}>PICK</Text>
+              </TouchableOpacity>
+            </View>
           )}
           {expanded === 'nr' && (
             <DiscreteStrip options={NR_MODES.map(m => ({ label: m.toUpperCase().replace('_', ' '), value: m }))} selected={camera.noise_reduction} onSelect={v => { onUpdate('noise_reduction', v); setExpanded(null); }} />
@@ -220,4 +281,32 @@ const styles = StyleSheet.create({
   sliderValue: { fontFamily: PIXEL_FONT, fontSize: 11, color: colors.text, width: 40, textAlign: 'center' },
   slider: { flex: 1, height: 30 },
   tier2Toggle: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: spacing.sm, marginBottom: spacing.xs },
+  wbGainsBox: {
+    padding: spacing.sm,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 4,
+    marginBottom: spacing.xs,
+    gap: 4,
+  },
+  wbHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 },
+  wbHeaderLabel: { fontFamily: PIXEL_FONT, fontSize: 9, color: colors.textDim, letterSpacing: 2 },
+  pickBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 4,
+  },
+  pickBtnActive: { borderColor: colors.text, backgroundColor: colors.surfaceLight },
+  pickLabel: { fontFamily: PIXEL_FONT, fontSize: 9, color: colors.textMuted, letterSpacing: 1 },
+  meterPickRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xs },
+  wbGainRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  wbGainLabel: { fontFamily: PIXEL_FONT, fontSize: 11, fontWeight: 'bold', width: 14 },
+  wbGainValue: { fontFamily: PIXEL_FONT, fontSize: 11, color: colors.text, width: 40, textAlign: 'center' },
+  wbGainSlider: { flex: 1, height: 30 },
 });

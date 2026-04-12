@@ -106,6 +106,14 @@ class ApiClient {
   previewUrl(): string {
     return `${this.baseUrl}/api/preview`;
   }
+
+  previewStreamUrl(): string {
+    return `${this.baseUrl}/api/preview/stream`;
+  }
+
+  async samplePreview(x: number, y: number): Promise<{ r: number; g: number; b: number }> {
+    return this.get(`/api/preview/sample?x=${x}&y=${y}`);
+  }
 }
 
 export const api = new ApiClient();

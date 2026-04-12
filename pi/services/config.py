@@ -12,10 +12,12 @@ DEFAULT_CONFIG = {
     "hardware_interval_sec": 3600,
     "software_interval_sec": 60,
     "camera": {
-        "iso": 100,
+        "analogue_gain": 1.0,
         "exposure_mode": "auto",
         "shutter_speed": None,
         "awb_mode": "auto",
+        "red_gain": 2.0,
+        "blue_gain": 1.3,
         "ev_compensation": 0.0,
         "metering_mode": "centre",
         "brightness": 0.0,
@@ -23,6 +25,7 @@ DEFAULT_CONFIG = {
         "saturation": 1.0,
         "sharpness": 1.0,
         "noise_reduction": "off",
+        "tuning": "standard",
     },
     "ap": {
         "ssid": "TimelapsePi",
